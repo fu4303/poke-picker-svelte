@@ -2,6 +2,7 @@
   import { fade } from "svelte/transition";
   import pokemon from "./data";
 
+  const COLS = 5;
   const ROWS = 5;
 
   let x = 0;
@@ -31,32 +32,31 @@
 </script>
 
 <style>
-  @media (min-width: 50rem) {
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 2rem;
-      align-items: start;
-    }
-  }
   .grid {
-    width: 95vw;
-    max-width: 25rem;
+    max-width: 22rem;
     display: grid;
-    grid-template-columns: repeat(5, 5rem);
-    grid-template-rows: repeat(5, 5rem);
-    border: 1px solid;
+    grid-template-columns: repeat(5, 4rem);
+    grid-template-rows: repeat(5, 4rem);
+    grid-gap: 0.5rem;
   }
   .gridcell {
     display: grid;
     place-content: center;
-    border: 1px solid;
+    border: 0.125rem solid hsl(200, 10%, 80%);
     margin: 0;
+    transition: border-color 0.1s, transform 0.1s;
   }
 
   .gridcell.active,
   .gridcell:focus {
-    background-color: yellow;
+    outline: 0;
+    border-color: hsl(20, 80%, 60%);
+    transform: scale(1.2) rotate(2deg);
+  }
+
+  .gridcell:nth-child(2n).active,
+  .gridcell:nth-child(2n):focus {
+    transform: scale(1.3) rotate(-2deg);
   }
 
   .gridcell > img {
@@ -94,24 +94,45 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: hsla(200, 10%, 30%, 0.25);
   }
+  @media (min-width: 74rem) {
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 2rem;
+      align-items: start;
+      padding: 2rem;
+    }
+  }
+  @media (min-width: 50rem) {
+    .grid {
+      max-width: 40rem;
+      grid-template-columns: repeat(5, 7rem);
+      grid-template-rows: repeat(5, 7rem);
+      grid-gap: 1rem;
+    }
+  }
 </style>
 
 <svelte:window on:keydown={handleKeyDown} />
 
-<h1 id="chooseFighter">Choose your fighter</h1>
-
 <main class="layout">
-  <div class="grid" role="grid" aria-labelledby="chooseFighter">
-    {#each pokemon as p, i}
-      <figure
-        tabindex="-1"
-        bind:this={refs[i]}
-        class:active={index === i}
-        class="gridcell">
-        <figcaption>{p.name}</figcaption>
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{p.id}.png" alt="" />
-      </figure>
-    {/each}
+  <div>
+    <h1 id="chooseFighter">Choose your fighter</h1>
+    <div class="grid" role="grid" aria-labelledby="chooseFighter">
+      {#each pokemon as p, i}
+        <figure
+          tabindex="-1"
+          bind:this={refs[i]}
+          on:click={() => {
+            x = i % COLS;
+            y = Math.floor(i / ROWS);
+          }}
+          class:active={index === i}
+          class="gridcell">
+          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{p.id}.png" alt={p.name} />
+        </figure>
+      {/each}
+    </div>
   </div>
 
   <!-- <figure class="big-sprite" key={index}>
